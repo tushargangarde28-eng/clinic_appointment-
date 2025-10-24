@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ClinicSys - Appointment Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    footer {
+      background: #0d6efd;
+      color: #fff;
+      padding: 15px 0;
+      margin-top: 40px;
+    }
+    footer p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .card {
+      border-radius: 8px;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #495057;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #6c757d;
+    }
+    .info-value {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/dashboard"><i class="bi bi-hospital me-2"></i>ClinicSys</a>
+    <div class="ms-auto">
+      <a class="btn btn-light me-2" href="/dashboard">Dashboard</a>
+      <a class="btn btn-outline-light" href="/appointments">Appointments</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0"><i class="bi bi-file-earmark-medical me-2"></i> Appointment Details</h3>
+    <div>
+      <a href="/appointments" class="btn btn-outline-primary me-2">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </a>
+      <!-- Edit Button -->
+      <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editAppointmentModal">
+        <i class="bi bi-pencil-square me-1"></i> Edit
+      </button>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      
+      <!-- Patient Information -->
+      <h5 class="section-title mb-3"><i class="bi bi-person-lines-fill me-2"></i>Patient Information</h5>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <p class="info-value"><span class="info-label">Name:</span> <%- info[0].patient_name %></p>
+          <p class="info-value"><span class="info-label">Mobile:</span> <%- info[0].patient_mobile %></p>
+          <p class="info-value"><span class="info-label">Address:</span> <%- info[0].patient_address %></p>
+        </div>
+        <div class="col-md-6">
+          <p class="info-value"><span class="info-label">Age:</span> <%- info[0].patient_age %></p>
+          <p class="info-value"><span class="info-label">Gender:</span> <%- info[0].patient_gender %></p>
+          <p class="info-value"><span class="info-label">Purpose of Visit:</span> <%- info[0].purpose_of_visit %></p>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Appointment Information -->
+      <h5 class="section-title mb-3"><i class="bi bi-calendar-check me-2"></i>Appointment Information</h5>
+      <div class="row">
+        <div class="col-md-6">
+          <p class="info-value"><span class="info-label">Date:</span> 
+            <%= new Date(info[0].appointment_date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) %>
+          </p>
+          <p class="info-value"><span class="info-label">Start Time:</span> <%- info[0].appointment_start_time %></p>
+          <p class="info-value"><span class="info-label">End Time:</span> <%- info[0].appointment_end_time %></p>
+        </div>
+        <div class="col-md-6">
+          <p class="info-value"><span class="info-label">Status:</span> 
+            <span class="badge px-3 py-2 fs-6 
+              <%= info[0].appointment_status === 'Scheduled' ? 'bg-warning text-dark' : 
+                  info[0].appointment_status === 'Completed' ? 'bg-success' : 
+                  'bg-secondary' %>">
+              <%- info[0].appointment_status %>
+            </span>
+          </p>
+          <p class="info-value"><span class="info-label">Disease Note:</span> <%- info[0].patient_disease_note %></p>
+          <p class="info-value"><span class="info-label">Prescription:</span> <%- info[0].prescription || '—' %></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editAppointmentModal" tabindex="-1" aria-labelledby="editAppointmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="/update_appointment/<%= info[0].appointment_id %>" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editAppointmentModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Appointment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+
+            <!-- Hidden IDs -->
+            <input type="hidden" name="appointment_id" value="<%= info[0].appointment_id %>">
+            <input type="hidden" name="staff_id" value="<%= info[0].staff_id %>">
+
+            <div class="col-md-6">
+              <label class="form-label">Doctor ID</label>
+              <input type="text" name="doctor_id" value="<%= info[0].doctor_id %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Patient Name</label>
+              <input type="text" name="patient_name" value="<%= info[0].patient_name %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Mobile</label>
+              <input type="text" name="patient_mobile" value="<%= info[0].patient_mobile %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Age</label>
+              <input type="number" name="patient_age" value="<%= info[0].patient_age %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Gender</label>
+              <select name="patient_gender" class="form-select" required>
+                <option value="Male" <%= info[0].patient_gender === "Male" ? "selected" : "" %>>Male</option>
+                <option value="Female" <%= info[0].patient_gender === "Female" ? "selected" : "" %>>Female</option>
+                <option value="Other" <%= info[0].patient_gender === "Other" ? "selected" : "" %>>Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Address</label>
+              <input type="text" name="patient_address" value="<%= info[0].patient_address %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Purpose of Visit</label>
+              <input type="text" name="purpose_of_visit" value="<%= info[0].purpose_of_visit %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Disease Note</label>
+              <textarea name="patient_disease_note" class="form-control"><%= info[0].patient_disease_note %></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Prescription</label>
+              <textarea name="prescription" class="form-control"><%= info[0].prescription %></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Appointment Date</label>
+              <input type="date" name="appointment_date" value="<%= info[0].appointment_date.toISOString().split('T')[0] %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Start Time</label>
+              <input type="time" name="appointment_start_time" value="<%= info[0].appointment_start_time %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">End Time</label>
+              <input type="time" name="appointment_end_time" value="<%= info[0].appointment_end_time %>" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select name="appointment_status" class="form-select" required>
+                <option value="Scheduled" <%= info[0].appointment_status === "Scheduled" ? "selected" : "" %>>Scheduled</option>
+                <option value="Completed" <%= info[0].appointment_status === "Completed" ? "selected" : "" %>>Completed</option>
+                <option value="Cancelled" <%= info[0].appointment_status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container text-center">
+    <p>&copy; <%= new Date().getFullYear() %> ClinicSys. All Rights Reserved.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
